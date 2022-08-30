@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "nqhEMnkDhwgihlkuopvLybVEaFftLtEqvSkAHikUji50dJD4DKaE03i1k+kIrZbczkmIjtzHDu2pJflTEoLxHg==",
+  "success": true,
+  "projectFilePath": "C:\\PCFLookupInformationPanel\\PCFLookupInformationPanelSln\\PCFLookupInformationPanelSln.cdsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\merchr\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.0\\microsoft.netframework.referenceassemblies.1.0.0.nupkg.sha512",
+    "C:\\Users\\merchr\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net462\\1.0.0\\microsoft.netframework.referenceassemblies.net462.1.0.0.nupkg.sha512",
+    "C:\\Users\\merchr\\.nuget\\packages\\microsoft.powerapps.msbuild.pcf\\1.17.5\\microsoft.powerapps.msbuild.pcf.1.17.5.nupkg.sha512",
+    "C:\\Users\\merchr\\.nuget\\packages\\microsoft.powerapps.msbuild.solution\\1.17.5\\microsoft.powerapps.msbuild.solution.1.17.5.nupkg.sha512"
+  ],
+  "logs": []
+}
