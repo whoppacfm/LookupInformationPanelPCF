@@ -2,9 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
 
-function showInformationPanel() {
-    alert("info panel");
-}
 
 function LookupInformationControl(props:any) {
 
@@ -17,6 +14,8 @@ function LookupInformationControl(props:any) {
     }
     
     class CSubgridData {
+        entityname: string;
+        lookupfieldname: string;
         data: Array<CFieldData>;
     }
 
@@ -58,20 +57,140 @@ function LookupInformationControl(props:any) {
 
     //Load Data
     function loadSubgridData() {
-        
-        //[entityname],[lookupname],[fieldname1];[fieldnameN]
-        
-        // arr:[] = config_lists.split("/")
-        
-        //map
-        //let entname = item[0];
-        //..
 
-        //subgridData, setSubgridData,  data: new Array<CSubgridData>()
+        let subgridsArr: Array<CSubgridData> = new Array<CSubgridData>();
 
+        let subgridConfigs:Array<string> = config_lists.split("/"); //[entityname],[lookupname],[fieldname1];[fieldnameN]/..
+        
+        subgridConfigs.map((item:string) => {
+            let sgd: CSubgridData = new CSubgridData();    
+            let arr:Array<string> = item.split(",");
+            sgd.entityname = arr[0];
+            sgd.lookupfieldname = arr[1];
+            sgd.data = new Array<CFieldData>();
+            let fieldsArr:Array<string> = arr[2].split(";");
+
+            fieldsArr.map((item:string) => {
+                let fieldmd:CFieldData = new CFieldData();
+                fieldmd.logicalname = item;
+                sgd.data.push(fieldmd);
+            });
+
+            subgridsArr.push(sgd);
+
+
+            //Load Metadata for subgrid entity
+
+            //Load subgrid records
+            //  sgd.entityname
+            //  sgd.lookupfieldname
+            //  lookupfield_currentId
+            //  lookupfield_currentEntityType
+
+            loadFieldsData(sgd.entityname, sgd.data, sgd.lookupfieldname, lookupfield_currentId);
+            
+        });
+
+        setSubgridData({"data":subgridsArr}); //subgridData, setSubgridData,  data: new Array<CSubgridData>()
     }
 
-    function loadData() {
+
+    function loadFieldsData(entityname:string, fields:Array<CFieldData>, lookupfieldname:string="", baserecordid:string="") {
+
+        debugger;
+
+		props.context.utils.getEntityMetadata(entityname, fields).then(function(res:any) {
+            
+            let metaData = res.Attributes._collection;
+
+            fields.map(function(field:CFieldData) {
+                let metaField = metaData[field.logicalname];
+
+                if(metaField!=null) {
+                    field.displaytext=metaField._displayName != null ? metaField._displayName : "";
+                    field.type = metaField._attributeTypeName; //"string", "lookup", "owner", "status", "datetime", "picklist", "integer", "decimal", "memo"
+                    field.options = [];
+                    field.showvalue="";
+                    if(field.type=="picklist") {
+                        //res.Attributes._collection.dev_picklist1.OptionSet["3543545"].text
+                    }
+                }
+                else {
+                    console.error("Field " + field.logicalname + " does not exist");
+                }
+            });
+
+            if(lookupfieldname=="") {
+                props.context.webAPI.retrieveRecord(entityname, baserecordid).then(function(res:any) {
+                    fields.map(function(metafield:CFieldData) {
+                        if(res[metafield.logicalname]!=null) {
+                            metafield.showvalue = String(res[metafield.logicalname]);
+                        }
+                    });
+                });
+            } 
+            else{
+                
+                // retrieve multiple subgrid records
+
+                debugger;
+
+                let sfields = "";
+                
+                fields.map(function(field:CFieldData) {
+                    sfields += "<attribute name='"+field.logicalname+"' />"
+                });
+                
+                let fetchXML = `<fetch distinct='false' mapping='logical'>
+                                  <entity name='`+entityname+`'>
+                                    FIELDS
+                                    <filter>
+                                      <condition attribute='PARENT_LOOKUP_FIELD' operator='eq' value='PARENT_RECORD_ID' />   
+                                    </filter>
+                                  </entity>
+                                </fetch>`;
+                
+                fetchXML = fetchXML.replace("FIELDS", sfields);
+                fetchXML = fetchXML.replace("PARENT_RECORD_ID", baserecordid);
+                fetchXML = fetchXML.replace("PARENT_LOOKUP_FIELD", lookupfieldname);
+                
+                console.log("fetch sub records fetchxml: " + fetchXML);
+                
+                props.context.webAPI.retrieveMultipleRecords(entityname, `?fetchXml=${fetchXML}`).then(
+                  (response: ComponentFramework.WebApi.RetrieveMultipleResponse) => {
+
+                    // todo fill fields
+
+                    debugger;
+
+                    res.entities.forEach((entityRecord: ComponentFramework.WebApi.Entity) => {
+
+                        debugger;
+
+                        fields.map(function(metafield:CFieldData) {
+                            
+                            if(entityRecord[metafield.logicalname]!=null) {
+                                
+                                metafield.showvalue = String(res[metafield.logicalname]);
+                                
+                            }
+                            
+                        });
+                    });
+
+                  },
+                  (errorResponse:any) => {
+                    console.error("Error fetching subrecords: " + errorResponse);
+                  }
+                );
+
+            }
+		});
+    }
+    
+
+
+    function loadLookupValueFieldData() {
         let fieldsMetadata:Array<CFieldData> = new Array<CFieldData>();
 
 		props.context.utils.getEntityMetadata(lookupfield_currentEntityType, config_fields).then(function(res:any) {
@@ -94,7 +213,7 @@ function LookupInformationControl(props:any) {
                 else {
                     console.error("Field " + cfieldname + " does not exist");
                 }
-
+                
                 fieldsMetadata.push(fieldmd);
             });
 
@@ -107,15 +226,14 @@ function LookupInformationControl(props:any) {
                 });
                 
                 setRecordData({"data": fieldsMetadata});
-
             });
 		});
-
     }
     
     //Init Panel Data    
     useEffect(() => {
-        loadData();
+        loadLookupValueFieldData();
+        loadSubgridData();
     }, []);
     
     function onShow() {
@@ -144,11 +262,20 @@ function LookupInformationControl(props:any) {
     contentStyle = {width:"800px", height:"800px", display:"block"};
     //-------------
 
-    debugger;
-
     let itemsTable = recordData.data.map((item:CFieldData) =>
         <>
             <tr style={trstyle}><td style={tdstyle}>{item.displaytext}</td><td style={tdstyle}>{item.showvalue}</td></tr>
+        </>
+    );
+
+    let subgridTable = subgridData.data.map((item:CSubgridData) =>
+        <>
+            <tr><td>{item.entityname}</td><td></td></tr>
+            {item.data.map((item:CFieldData) =>
+            <>
+                <tr style={trstyle}><td style={tdstyle}>{item.displaytext}</td><td style={tdstyle}>{item.showvalue}</td></tr>
+            </>
+            )}
         </>
     );
 
@@ -157,6 +284,13 @@ function LookupInformationControl(props:any) {
             <div onMouseEnter={onShow} onMouseLeave={onHide} style={lookupInputStyle}></div>
             <table>
                 {itemsTable}
+            </table>
+            <br/>
+            <br/>
+            <br/>
+            Subgrids:
+            <table>
+                {subgridTable}
             </table>
         </>
     );
