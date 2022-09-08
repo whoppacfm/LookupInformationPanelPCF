@@ -65,7 +65,7 @@ function LookupInformationControl(props:any) {
         
         //let mapCount=0;
         let subgridLoadPromises:Array<Promise<any>> = new Array<Promise<any>>();
-        subgridConfigs.map((item:string) => {
+        subgridConfigs.forEach((item:string) => {
 
             let sgd: CSubgridData = new CSubgridData();
             let arr:Array<string> = item.split(",");
@@ -76,7 +76,7 @@ function LookupInformationControl(props:any) {
 
             let fieldsDefinitions: Array<CFieldData> = new Array<CFieldData>();
 
-            fieldsArr.map((item:string) => {
+            fieldsArr.forEach((item:string) => {
                 let fieldmd:CFieldData = new CFieldData();
                 fieldmd.logicalname = item;
                 fieldsDefinitions.push(fieldmd);
@@ -99,8 +99,7 @@ function LookupInformationControl(props:any) {
             alert("Error loading subgrid data: " + e);
         });
     }
-
-
+    
     function loadFieldsData(entityname:string, fieldsDefinitions:Array<CFieldData>, lookupfieldname:string="", baserecordid:string="", subgridRecords:Array<Array<CFieldData>>=[]) {
 
         return new Promise((resolve, reject) => {
@@ -111,7 +110,7 @@ function LookupInformationControl(props:any) {
                 
                 let metaData = res.Attributes._collection;
 
-                fieldsDefinitions.map(function(field:CFieldData) {
+                fieldsDefinitions.forEach(function(field:CFieldData) {
                     let metaField = metaData[field.logicalname];
                     
                     if(metaField!=null) {
@@ -131,7 +130,7 @@ function LookupInformationControl(props:any) {
 
                 if(lookupfieldname=="") {
                     props.context.webAPI.retrieveRecord(entityname, baserecordid).then(function(res:any) {
-                        fieldsDefinitions.map(function(metafield:CFieldData) {
+                        fieldsDefinitions.forEach(function(metafield:CFieldData) {
                             if(res[metafield.logicalname]!=null) {
                                 metafield.showvalue = String(res[metafield.logicalname]);
                             }
@@ -144,7 +143,7 @@ function LookupInformationControl(props:any) {
                     // retrieve multiple subgrid records
                     let sfieldsFetch = "";
                     
-                    fieldsDefinitions.map(function(field:CFieldData) {
+                    fieldsDefinitions.forEach(function(field:CFieldData) {
                         sfieldsFetch += "<attribute name='"+field.logicalname+"' />"
                     });
                     
@@ -175,12 +174,14 @@ function LookupInformationControl(props:any) {
                                 let subgridRecord = new Array<CFieldData>();
                                 subgridRecords.push(subgridRecord);
 
-                                fieldsDefinitions.map(function(metafield:CFieldData) {
+                                fieldsDefinitions.forEach((metafield:CFieldData) => {
+
                                     if(entityRecord[metafield.logicalname]!=null) {
                                         let recordField = structuredClone(metafield);
                                         recordField.showvalue = String(entityRecord[metafield.logicalname]);
                                         subgridRecord.push(recordField);
                                     }
+
                                 });
 
                                 if(recordLoopCount>=resp.entities.length) {
@@ -207,7 +208,7 @@ function LookupInformationControl(props:any) {
             
             let metaData = res.Attributes._collection;
 
-            config_fields.map(function(cfieldname:string){
+            config_fields.forEach((cfieldname:string) => {
                 let metaField = metaData[cfieldname];
                 let fieldmd:CFieldData = new CFieldData();
                 if(metaField!=null) {
@@ -229,7 +230,7 @@ function LookupInformationControl(props:any) {
             });
 
             props.context.webAPI.retrieveRecord(lookupfield_currentEntityType, lookupfield_currentId).then(function(res:any) {
-                fieldsMetadata.map(function(metafield:CFieldData) {
+                fieldsMetadata.forEach((metafield:CFieldData) => {
                     if(res[metafield.logicalname]!=null) {
                         metafield.showvalue = String(res[metafield.logicalname]);
                     }
@@ -279,9 +280,9 @@ function LookupInformationControl(props:any) {
         <>
             <tr><td>{subgrid.entityname}</td><td></td></tr>
 
-            {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
+            {subgrid.data.forEach((subgridRecordFields:Array<CFieldData>) =>
 
-                {subgridRecordFields.map((subgridRecordField:CFieldData) =>
+                {subgridRecordFields.forEach((subgridRecordField:CFieldData) =>
                     <>
                         <tr style={trstyle}><td style={tdstyle}>{subgridRecordField.displaytext}</td><td style={tdstyle}>{subgridRecordField.showvalue}</td></tr>
                     </>
