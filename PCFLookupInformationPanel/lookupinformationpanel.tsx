@@ -7,12 +7,32 @@ import { rejects } from 'assert';
 
 function LookupInformationControl(props:any) {
 
+    //Testing
+    var DATA_SOURCE = "CRM"
+
+    let href = window!.top!.location.href;
+    if(href.indexOf("127.") > -1 || href.indexOf("localhost") > -1) {
+      DATA_SOURCE="TEST";
+    }
+
+    var CRM_TEST_MODE = 1;
+
+    //Data Definitions
     class CFieldData {
-        "logicalname":string;
-        "type":string;
-        "displaytext":string;
-        "options":[];
-        "showvalue":string;
+        logicalname:string;
+        type:string;
+        displaytext:string;
+        options:[];
+        showvalue:string;
+        
+        constructor(displaytext?:string, showvalue?:string) {
+            if(displaytext) {
+                this.displaytext = displaytext;
+            }
+            if(showvalue) {
+                this.showvalue = showvalue;
+            }
+        };
     }
     
     class CSubgridData {
@@ -21,6 +41,7 @@ function LookupInformationControl(props:any) {
         data: Array<Array<CFieldData>>;
     }
 
+    //State
     const [contentVisible, setContentVisible] = React.useState({ 
         visible: false
     });
@@ -34,6 +55,7 @@ function LookupInformationControl(props:any) {
     });
 
 
+    //Init
     //Get current record data
     //let currentFntityId = (props.context.mode as any).contextInfo.entityId;
     //let currentEntityTypeName = (props.context.mode as any).contextInfo.entityTypeName;
@@ -63,7 +85,6 @@ function LookupInformationControl(props:any) {
         let subgridsArr: Array<CSubgridData> = new Array<CSubgridData>();
         let subgridConfigs:Array<string> = config_lists.split("/"); //[entityname],[lookupname],[fieldname1];[fieldnameN]/..
         
-        //let mapCount=0;
         let subgridLoadPromises:Array<Promise<any>> = new Array<Promise<any>>();
         subgridConfigs.forEach((item:string) => {
 
@@ -100,7 +121,7 @@ function LookupInformationControl(props:any) {
         });
     }
     
-    function loadFieldsData(entityname:string, fieldsDefinitions:Array<CFieldData>, lookupfieldname:string="", baserecordid:string="", subgridRecords:Array<Array<CFieldData>>=[]) {
+    function loadFieldsData(entityname:string, fieldsDefinitions:Array<CFieldData>, lookupfieldname?:string, baserecordid?:string, subgridRecords?:Array<Array<CFieldData>>) {
 
         return new Promise((resolve, reject) => {
 
@@ -128,7 +149,7 @@ function LookupInformationControl(props:any) {
                     }
                 });
 
-                if(lookupfieldname=="") {
+                if(lookupfieldname==null || lookupfieldname=="") {
                     props.context.webAPI.retrieveRecord(entityname, baserecordid).then(function(res:any) {
                         fieldsDefinitions.forEach(function(metafield:CFieldData) {
                             if(res[metafield.logicalname]!=null) {
@@ -140,7 +161,7 @@ function LookupInformationControl(props:any) {
                 } 
                 else {
                     
-                    // retrieve multiple subgrid records
+                    //Retrieve multiple subgrid records
                     let sfieldsFetch = "";
                     
                     fieldsDefinitions.forEach(function(field:CFieldData) {
@@ -148,40 +169,35 @@ function LookupInformationControl(props:any) {
                     });
                     
                     let fetchXML = `<fetch distinct='false' mapping='logical'>
-                                    <entity name='`+entityname+`'>
-                                        FIELDS
-                                        <filter>
-                                        <condition attribute='PARENT_LOOKUP_FIELD' operator='eq' value='PARENT_RECORD_ID' />   
-                                        </filter>
-                                    </entity>
+                                        <entity name='`+entityname+`'>
+                                            FIELDS
+                                            <filter>
+                                                <condition attribute='PARENT_LOOKUP_FIELD' operator='eq' value='PARENT_RECORD_ID' />
+                                            </filter>
+                                        </entity>
                                     </fetch>`;
                     
                     fetchXML = fetchXML.replace("FIELDS", sfieldsFetch);
-                    fetchXML = fetchXML.replace("PARENT_RECORD_ID", baserecordid);
+                    fetchXML = fetchXML.replace("PARENT_RECORD_ID", baserecordid != null ? baserecordid : "");
                     fetchXML = fetchXML.replace("PARENT_LOOKUP_FIELD", lookupfieldname);
                     
                     console.log("fetch sub records fetchxml: " + fetchXML);
 
                     props.context.webAPI.retrieveMultipleRecords(entityname, `?fetchXml=${fetchXML}`).then(
                         (resp: ComponentFramework.WebApi.RetrieveMultipleResponse) => {
-                            
                             let recordLoopCount = 0;
-                            
-                            resp.entities.forEach((entityRecord: ComponentFramework.WebApi.Entity) => {
 
+                            resp.entities.forEach((entityRecord: ComponentFramework.WebApi.Entity) => {
                                 recordLoopCount++;
-                                
                                 let subgridRecord = new Array<CFieldData>();
-                                subgridRecords.push(subgridRecord);
+                                subgridRecords!.push(subgridRecord);
 
                                 fieldsDefinitions.forEach((metafield:CFieldData) => {
-
                                     if(entityRecord[metafield.logicalname]!=null) {
                                         let recordField = structuredClone(metafield);
                                         recordField.showvalue = String(entityRecord[metafield.logicalname]);
                                         subgridRecord.push(recordField);
                                     }
-
                                 });
 
                                 if(recordLoopCount>=resp.entities.length) {
@@ -230,20 +246,64 @@ function LookupInformationControl(props:any) {
             });
 
             props.context.webAPI.retrieveRecord(lookupfield_currentEntityType, lookupfield_currentId).then(function(res:any) {
+
                 fieldsMetadata.forEach((metafield:CFieldData) => {
                     if(res[metafield.logicalname]!=null) {
                         metafield.showvalue = String(res[metafield.logicalname]);
                     }
                 });
+
                 setRecordData({"data": fieldsMetadata});
+
             });
 		});
     }
     
-    //Init Panel Data    
+    //Init panel data
     useEffect(() => {
-        loadLookupValueFieldData();
-        loadSubgridData();
+
+        if(DATA_SOURCE=="TEST") {
+            
+            //Lookup Record Test Data
+            let testRecordData:Array<CFieldData> = new Array<CFieldData>();
+            testRecordData.push(new CFieldData("Name", "Component X543"))
+            testRecordData.push(new CFieldData("Type", "X543"))
+            testRecordData.push(new CFieldData("Level", "543"))
+            setRecordData({"data": testRecordData});
+
+            //Subgrids Test Data
+            let testSubgridsData:Array<CSubgridData> = new Array<CSubgridData>();
+
+            //Subgrid 1
+            let testSubgridData = new CSubgridData();
+            testSubgridData.entityname = "Component X";
+            testSubgridData.data = new Array<Array<CFieldData>>();
+            let fields1 = new Array<CFieldData>();
+            fields1.push(new CFieldData("Name", "SubComponent Y323"))
+            fields1.push(new CFieldData("Type", "Y323"))
+            fields1.push(new CFieldData("Level", "323"))
+            testSubgridData.data.push(fields1);
+
+            //Subgrid 1
+            let testSubgridData2 = new CSubgridData();
+            testSubgridData2.entityname = "Component X";
+            testSubgridData2.data = new Array<Array<CFieldData>>();
+            let fields2 = new Array<CFieldData>();
+            fields2.push(new CFieldData("Name", "SubComponent Y555"))
+            fields2.push(new CFieldData("Type", "Y555"))
+            fields2.push(new CFieldData("Level", "555"))
+            testSubgridData2.data.push(fields2);
+            
+            //Set state
+            testSubgridsData.push(testSubgridData);            
+            testSubgridsData.push(testSubgridData2);
+            setSubgridData({"data": testSubgridsData});
+        }
+        else {
+            loadLookupValueFieldData();
+            loadSubgridData();
+        }
+
     }, []);
     
     function onShow() {
@@ -266,9 +326,9 @@ function LookupInformationControl(props:any) {
         contentStyle = {width:"800px", height:"800px", display:"block"};
     }
 
-    //---TESTING---
-    contentStyle = {width:"800px", height:"800px", display:"block"};
-    //-------------
+    if(CRM_TEST_MODE==1) {
+        contentStyle = {width:"800px", height:"800px", display:"block"};
+    }
 
     let itemsTable = recordData.data.map((item:CFieldData) =>
         <>
@@ -280,9 +340,9 @@ function LookupInformationControl(props:any) {
         <>
             <tr><td>{subgrid.entityname}</td><td></td></tr>
 
-            {subgrid.data.forEach((subgridRecordFields:Array<CFieldData>) =>
+            {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
 
-                {subgridRecordFields.forEach((subgridRecordField:CFieldData) =>
+                {subgridRecordFields.map((subgridRecordField:CFieldData) =>
                     <>
                         <tr style={trstyle}><td style={tdstyle}>{subgridRecordField.displaytext}</td><td style={tdstyle}>{subgridRecordField.showvalue}</td></tr>
                     </>
@@ -290,9 +350,9 @@ function LookupInformationControl(props:any) {
             )}                
         </>
     );
-
-debugger;
-
+    
+    debugger;
+    
     return (
         <>
             <div onMouseEnter={onShow} onMouseLeave={onHide} style={lookupInputStyle}></div>
