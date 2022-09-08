@@ -60,10 +60,9 @@ function LookupInformationControl(props:any) {
     function loadSubgridData() {
 
         let subgridsArr: Array<CSubgridData> = new Array<CSubgridData>();
-
         let subgridConfigs:Array<string> = config_lists.split("/"); //[entityname],[lookupname],[fieldname1];[fieldnameN]/..
         
-        let mapCount=0;
+        let subgridLoadPromises:Array<Object> = new Array<Object>();
         subgridConfigs.map((item:string) => {
             let sgd: CSubgridData = new CSubgridData();
             let arr:Array<string> = item.split(",");
@@ -82,18 +81,18 @@ function LookupInformationControl(props:any) {
 
             subgridsArr.push(sgd);
             
-            //Load Metadata for subgrid entity
-            mapCount++;
-            loadFieldsData(sgd.entityname, fieldsDefinitions, sgd.lookupfieldname, lookupfield_currentId, sgd.data).then((res:any) => { 
-                
-                console.error("mapCount: " + mapCount + ", subgridConfigs.length: " + subgridConfigs.length);
-                
-                if(mapCount >= subgridConfigs.length) {
-                    debugger;
-                    console.error("SET SUBGRID DATA TO STATE");
-                    setSubgridData({"data":subgridsArr}); //subgridData, setSubgridData,  data: new Array<CSubgridData>()
-                }
-            });
+            //Load data for subgrids
+            let subgridLoadPromise = loadFieldsData(sgd.entityname, fieldsDefinitions, sgd.lookupfieldname, lookupfield_currentId, sgd.data);
+            subgridLoadPromises.push(subgridLoadPromise);
+        });
+
+        Promise.all(subgridLoadPromises)
+        .then(() => {
+            setSubgridData({"data":subgridsArr}); //subgridData, setSubgridData,  data: new Array<CSubgridData>()
+        })
+        .catch((e) => {
+            console.error("Error loading subgrid data: " + e);
+            alert("Error loading subgrid data: " + e);
         });
     }
 
