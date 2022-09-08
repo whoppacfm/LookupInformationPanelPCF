@@ -54,13 +54,12 @@ function LookupInformationControl(props:any) {
         data: new Array<CSubgridData>()
     });
 
-
     //Init
     //Get current record data
     //let currentFntityId = (props.context.mode as any).contextInfo.entityId;
     //let currentEntityTypeName = (props.context.mode as any).contextInfo.entityTypeName;
     //let currentEntityRecordName = (props.context.mode as any).contextInfo.entityRecordName;
-
+    
     //Get currentcControl field value
     let lookupfield_currentValue = props.context.parameters.BoundLookupField.raw[0];
     let lookupfield_currentId = lookupfield_currentValue.id;
@@ -113,6 +112,7 @@ function LookupInformationControl(props:any) {
         Promise.all(subgridLoadPromises)
         .then((res:any) => {
             console.log(res);
+            debugger;
             setSubgridData({"data":subgridsArr}); //subgridData, setSubgridData,  data: new Array<CSubgridData>()
         })
         .catch((e:any) => {
