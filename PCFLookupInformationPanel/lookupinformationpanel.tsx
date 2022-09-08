@@ -59,7 +59,7 @@ function LookupInformationControl(props:any) {
     //let currentFntityId = (props.context.mode as any).contextInfo.entityId;
     //let currentEntityTypeName = (props.context.mode as any).contextInfo.entityTypeName;
     //let currentEntityRecordName = (props.context.mode as any).contextInfo.entityRecordName;
-    
+
     //Get currentcControl field value
     let lookupfield_currentValue = props.context.parameters.BoundLookupField.raw[0];
     let lookupfield_currentId = lookupfield_currentValue.id;
@@ -279,29 +279,37 @@ function LookupInformationControl(props:any) {
             testSubgridData.entityname = "Component X";
             testSubgridData.data = new Array<Array<CFieldData>>();
             let fields1 = new Array<CFieldData>();
-            fields1.push(new CFieldData("Name", "SubComponent Y323"))
-            fields1.push(new CFieldData("Type", "Y323"))
-            fields1.push(new CFieldData("Level", "323"))
+            fields1.push(new CFieldData("Name", "SubComponent Y323"));
+            fields1.push(new CFieldData("Type", "Y323"));
+            fields1.push(new CFieldData("Level", "323"));
             testSubgridData.data.push(fields1);
+            let fields1_1 = new Array<CFieldData>();
+            fields1_1.push(new CFieldData("Name", "SubComponent Y3231"));
+            fields1_1.push(new CFieldData("Type", "Y3231"));
+            fields1_1.push(new CFieldData("Level", "3231"));
+            testSubgridData.data.push(fields1_1);
 
-            //Subgrid 1
+            //Subgrid 2
             let testSubgridData2 = new CSubgridData();
-            testSubgridData2.entityname = "Component X";
+            testSubgridData2.entityname = "Component Y";
             testSubgridData2.data = new Array<Array<CFieldData>>();
             let fields2 = new Array<CFieldData>();
-            fields2.push(new CFieldData("Name", "SubComponent Y555"))
-            fields2.push(new CFieldData("Type", "Y555"))
-            fields2.push(new CFieldData("Level", "555"))
+            fields2.push(new CFieldData("Name", "SubComponent Y555"));
+            fields2.push(new CFieldData("Type", "Y555"));
+            fields2.push(new CFieldData("Level", "555"));
             testSubgridData2.data.push(fields2);
             
             //Set state
             testSubgridsData.push(testSubgridData);            
             testSubgridsData.push(testSubgridData2);
             setSubgridData({"data": testSubgridsData});
+
         }
         else {
+
             loadLookupValueFieldData();
             loadSubgridData();
+
         }
 
     }, []);
@@ -339,15 +347,15 @@ function LookupInformationControl(props:any) {
     let subgridTable = subgridData.data.map((subgrid:CSubgridData) =>
         <>
             <tr><td>{subgrid.entityname}</td><td></td></tr>
-
             {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
-
+                <>
                 {subgridRecordFields.map((subgridRecordField:CFieldData) =>
                     <>
                         <tr style={trstyle}><td style={tdstyle}>{subgridRecordField.displaytext}</td><td style={tdstyle}>{subgridRecordField.showvalue}</td></tr>
                     </>
                 )}
-            )}                
+                </>
+            )}
         </>
     );
     
