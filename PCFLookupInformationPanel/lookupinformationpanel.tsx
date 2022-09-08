@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
 import structuredClone from '@ungap/structured-clone';
+import { rejects } from 'assert';
 
 
 function LookupInformationControl(props:any) {
@@ -62,8 +63,10 @@ function LookupInformationControl(props:any) {
         let subgridsArr: Array<CSubgridData> = new Array<CSubgridData>();
         let subgridConfigs:Array<string> = config_lists.split("/"); //[entityname],[lookupname],[fieldname1];[fieldnameN]/..
         
-        let subgridLoadPromises:Array<Object> = new Array<Object>();
+        //let mapCount=0;
+        let subgridLoadPromises:Array<Promise<any>> = new Array<Promise<any>>();
         subgridConfigs.map((item:string) => {
+
             let sgd: CSubgridData = new CSubgridData();
             let arr:Array<string> = item.split(",");
             sgd.entityname = arr[0];
@@ -87,10 +90,11 @@ function LookupInformationControl(props:any) {
         });
 
         Promise.all(subgridLoadPromises)
-        .then(() => {
+        .then((res:any) => {
+            console.log(res);
             setSubgridData({"data":subgridsArr}); //subgridData, setSubgridData,  data: new Array<CSubgridData>()
         })
-        .catch((e) => {
+        .catch((e:any) => {
             console.error("Error loading subgrid data: " + e);
             alert("Error loading subgrid data: " + e);
         });
@@ -99,7 +103,7 @@ function LookupInformationControl(props:any) {
 
     function loadFieldsData(entityname:string, fieldsDefinitions:Array<CFieldData>, lookupfieldname:string="", baserecordid:string="", subgridRecords:Array<Array<CFieldData>>=[]) {
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
 
             const sfieldNames = fieldsDefinitions.map((item:CFieldData) => item.logicalname);
             
@@ -183,20 +187,15 @@ function LookupInformationControl(props:any) {
                     },
                     (errorResp:any) => {
                         console.error("Error fetching subrecords: " + errorResp);
-                        alert("Error fetching subrecords: " + errorResp);
-                        resolve("");
-                    }
-                    );
+                        reject("Error fetching subrecords: " + errorResp);
+                    });
                 }
             }, function(metadataErr:any){
                 console.error("Error fetching metadata: " + metadataErr);
-                alert("Error fetching metadata: " + metadataErr);
-                resolve("");
+                reject("Error fetching metadata: " + metadataErr);
             });
-
         })        
     }
-    
 
     function loadLookupValueFieldData() {
         let fieldsMetadata:Array<CFieldData> = new Array<CFieldData>();
