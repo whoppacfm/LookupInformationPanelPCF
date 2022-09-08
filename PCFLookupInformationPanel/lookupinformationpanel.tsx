@@ -139,7 +139,7 @@ function LookupInformationControl(props:any) {
                         resolve("");
                     });
                 } 
-                else{
+                else {
                     
                     // retrieve multiple subgrid records
                     let sfieldsFetch = "";
@@ -164,27 +164,30 @@ function LookupInformationControl(props:any) {
                     console.log("fetch sub records fetchxml: " + fetchXML);
 
                     props.context.webAPI.retrieveMultipleRecords(entityname, `?fetchXml=${fetchXML}`).then(
-                    (resp: ComponentFramework.WebApi.RetrieveMultipleResponse) => {
-                        let count=0;
-                        let subgridRecord = new Array<CFieldData>();
-                        subgridRecords.push(subgridRecord);
+                        (resp: ComponentFramework.WebApi.RetrieveMultipleResponse) => {
+                            
+                            let recordLoopCount = 0;
+                            
+                            resp.entities.forEach((entityRecord: ComponentFramework.WebApi.Entity) => {
 
-                        resp.entities.forEach((entityRecord: ComponentFramework.WebApi.Entity) => {
-                            count++;
-                            fieldsDefinitions.map(function(metafield:CFieldData) {
-                                if(entityRecord[metafield.logicalname]!=null) {
-                                    let recordField = structuredClone(metafield);
-                                    recordField.showvalue = String(entityRecord[metafield.logicalname]);
-                                    subgridRecord.push(recordField);
+                                recordLoopCount++;
+                                
+                                let subgridRecord = new Array<CFieldData>();
+                                subgridRecords.push(subgridRecord);
+
+                                fieldsDefinitions.map(function(metafield:CFieldData) {
+                                    if(entityRecord[metafield.logicalname]!=null) {
+                                        let recordField = structuredClone(metafield);
+                                        recordField.showvalue = String(entityRecord[metafield.logicalname]);
+                                        subgridRecord.push(recordField);
+                                    }
+                                });
+
+                                if(recordLoopCount>=resp.entities.length) {
+                                    resolve("");
                                 }
                             });
-
-                            if(count>=resp.entities.length) {
-                                console.error("RESOLVE_RETRIEVE_MULTIPLE");
-                                resolve("");
-                            }
-                        });
-                    },
+                        },
                     (errorResp:any) => {
                         console.error("Error fetching subrecords: " + errorResp);
                         reject("Error fetching subrecords: " + errorResp);
