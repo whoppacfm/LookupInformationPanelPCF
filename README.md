@@ -1,3 +1,3 @@
-# LookupInformationPanelPCF
+# LookupInformationPanelPCF Development Template
 
-PCF in development
+
