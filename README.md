@@ -1,6 +1,6 @@
 # LookupInformationPanelPCF Development Template
 <br/>
-A code template to display record data and date from related records for a lookup field
+A code template to display record data and data from related records for a lookup field
 <br/>
 <br/>
 Predefined Control Config
