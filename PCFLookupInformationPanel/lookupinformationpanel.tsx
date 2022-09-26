@@ -322,7 +322,6 @@ function LookupInformationControl(props:any) {
     }
 
     let lookupInputStyle:any = {width:"70%", height:"10px", borderLeft:"45px solid transparent", borderRight:"45px solid transparent", borderTop:"10px solid aliceblue"};
-    let contentStyle:any = {width:"800px", height:"800px", display:"none"};
     let trstyle = {width:"100%"};
     let tdstyle = {width:"50%"};
     let subgridheaderstyle:any = {fontWeight:"bold", marginLeft:"30px", fontSize:"medium"};
@@ -331,13 +330,14 @@ function LookupInformationControl(props:any) {
     let dataViewLabelStyle:any = {float:"left"};
     let subgridViewControlStyle:any = {width:"100px", marginLeft:"20px", marginTop:"10px"};
 
+    let contentStyle:any = {width:"800px", height:"800px", display:"none"};
     if(contentVisible.visible) {
         contentStyle = {width:"800px", height:"800px", display:"block"};
     }
 
-    if(CRM_TEST_MODE==1) {
-        contentStyle = {width:"800px", height:"800px", display:"block"};
-    }
+    //if(CRM_TEST_MODE==1) {
+    //    contentStyle = {width:"800px", height:"800px", display:"block"};
+    //}
 
     let itemsTable = recordData.data.map((item:CFieldData) =>
         <>
