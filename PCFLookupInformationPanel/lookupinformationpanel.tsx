@@ -112,7 +112,6 @@ function LookupInformationControl(props:any) {
         Promise.all(subgridLoadPromises)
         .then((res:any) => {
             console.log(res);
-            debugger;
             setSubgridData({"data":subgridsArr}); //subgridData, setSubgridData,  data: new Array<CSubgridData>()
         })
         .catch((e:any) => {
@@ -309,7 +308,7 @@ function LookupInformationControl(props:any) {
 
             loadLookupValueFieldData();
             loadSubgridData();
-
+            
         }
 
     }, []);
@@ -322,13 +321,11 @@ function LookupInformationControl(props:any) {
         setContentVisible({visible:false});
     }
 
-    let initialValue = props.lookupvalue;
     let lookupInputStyle:any = {width:"70%", height:"10px", borderLeft:"45px solid transparent", borderRight:"45px solid transparent", borderTop:"10px solid aliceblue"};
     let contentStyle:any = {width:"800px", height:"800px", display:"none"};
-    let itemFieldStyle:any = {float:"left", marginRight:"50px"};
-    
     let trstyle = {width:"100%"};
     let tdstyle = {width:"50%"};
+    let subgridheaderstyle = {fontWeight:"bold"};
 
     if(contentVisible.visible) {
         contentStyle = {width:"800px", height:"800px", display:"block"};
@@ -346,7 +343,7 @@ function LookupInformationControl(props:any) {
 
     let subgridTable = subgridData.data.map((subgrid:CSubgridData) =>
         <>
-            <tr><td>{subgrid.entityname}</td><td></td></tr>
+            <tr><td><p style={subgridheaderstyle}>{subgrid.entityname}</p></td><td></td></tr>
             {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
                 <>
                 {subgridRecordFields.map((subgridRecordField:CFieldData) =>
@@ -354,12 +351,12 @@ function LookupInformationControl(props:any) {
                         <tr style={trstyle}><td style={tdstyle}>{subgridRecordField.displaytext}</td><td style={tdstyle}>{subgridRecordField.showvalue}</td></tr>
                     </>
                 )}
+                <tr><td></td><td></td></tr>
                 </>
             )}
+            <tr><td></td><td></td></tr>
         </>
     );
-    
-    debugger;
     
     return (
         <>
@@ -368,9 +365,6 @@ function LookupInformationControl(props:any) {
                 {itemsTable}
             </table>
             <br/>
-            <br/>
-            <br/>
-            Subgrids:
             <table>
                 {subgridTable}
             </table>
