@@ -55,6 +55,10 @@ function LookupInformationControl(props:any) {
         data: new Array<CSubgridData>()
     });
 
+    const [subgridViewStyle, setSubgridViewStyle] = React.useState({ 
+        type: "Vertical"
+    });
+
     //Init
     //Get current record data
     //let currentFntityId = (props.context.mode as any).contextInfo.entityId;
@@ -322,9 +326,18 @@ function LookupInformationControl(props:any) {
             setContentVisible({visible:false, onHide:contentVisible.onHide});
         }
     }
-    
+
     function onClickTriggerDiv() {
         setContentVisible({visible:contentVisible.visible, onHide:!contentVisible.onHide});
+    }
+
+    function onChangeSubgridView() {
+        if(arguments[0].currentTarget.value=="Horizontal") {
+            setSubgridViewStyle({type:"Horizontal"});
+        }
+        else {
+            setSubgridViewStyle({type:"Vertical"});
+        }
     }
 
     let lookupInputStyle:any = {width:"70%", height:"10px", borderLeft:"45px solid transparent", borderRight:"45px solid transparent", borderTop:"10px solid aliceblue"};
@@ -352,26 +365,62 @@ function LookupInformationControl(props:any) {
         </>
     );
 
-    let subgridTable = subgridData.data.map((subgrid:CSubgridData) =>
-        <>
-            <tr><td><p style={subgridheaderstyle}>{subgrid.entityname}</p></td><td></td></tr>
-            {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
-                <>
-                {subgridRecordFields.map((subgridRecordField:CFieldData) =>
+
+    let subgridTable:any;
+
+    if(subgridViewStyle.type=="Vertical") {
+        subgridTable = subgridData.data.map((subgrid:CSubgridData) =>
+            <>
+                <tr><td><p style={subgridheaderstyle}>{subgrid.entityname}</p></td><td></td></tr>
+                {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
                     <>
-                        <tr style={trstyle}><td style={tdstyle}>{subgridRecordField.displaytext}</td><td style={tdstyle}>{subgridRecordField.showvalue}</td></tr>
+                    {subgridRecordFields.map((subgridRecordField:CFieldData) =>
+                        <>
+                            <tr style={trstyle}><td style={tdstyle}>{subgridRecordField.displaytext}</td><td style={tdstyle}>{subgridRecordField.showvalue}</td></tr>
+                        </>
+                    )}
+                    <tr><td></td><td></td></tr>
                     </>
                 )}
                 <tr><td></td><td></td></tr>
-                </>
-            )}
-            <tr><td></td><td></td></tr>
-        </>
-    );
-    
+            </>
+        );
+    }
+
+    if(subgridViewStyle.type=="Horizontal") {
+        subgridTable = subgridData.data.map((subgrid:CSubgridData) =>
+            <>
+                <tr><td><p style={subgridheaderstyle}>{subgrid.entityname}</p></td><td></td></tr>
+                <tr style={trstyle}>
+                {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
+                    <>
+                    {subgridRecordFields.map((subgridRecordField:CFieldData) =>
+                        <>
+                            <th style={tdstyle}>{subgridRecordField.displaytext}</th>
+                        </>
+                    )}
+                    </>
+                )}
+                </tr>
+                {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
+                    <>
+                    <tr style={trstyle}>
+                    {subgridRecordFields.map((subgridRecordField:CFieldData) =>
+                        <>
+                            <td style={tdstyle}>{subgridRecordField.showvalue}</td>
+                        </>
+                    )}
+                    </tr>
+                    </>
+                )}
+                <tr><td></td><td></td></tr>
+            </>
+        );
+    }
+
     return (
         <>
-            <div onClick={onClickTriggerDiv} onMouseEnter={onShow} onMouseLeave={onHide} style={lookupInputStyle}></div>
+            <div title="Click to lock visibility" onClick={onClickTriggerDiv} onMouseEnter={onShow} onMouseLeave={onHide} style={lookupInputStyle}></div>
             <div style={contentStyle}>
                 <table>
                     <tr><td><p style={recordheaderstyle}>Record Data</p></td><td></td></tr>
@@ -381,7 +430,7 @@ function LookupInformationControl(props:any) {
                 <br/>
                 <div style={subgridHeaderDivStyle}>
                     <p style={dataViewLabelStyle}>Subgrid Data View</p>
-                    <select style={subgridViewControlStyle} id="subgridViewControl">
+                    <select style={subgridViewControlStyle} id="subgridViewControl" onChange={onChangeSubgridView}>
                         <option value="Vertical">Vertical</option>
                         <option value="Horizontal">Horizontal</option>
                     </select>
