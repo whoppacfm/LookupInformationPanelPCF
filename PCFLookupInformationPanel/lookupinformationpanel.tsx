@@ -302,22 +302,21 @@ function LookupInformationControl(props:any) {
             testSubgridsData.push(testSubgridData);            
             testSubgridsData.push(testSubgridData2);
             setSubgridData({"data": testSubgridsData});
-
         }
         else {
-
             loadLookupValueFieldData();
             loadSubgridData();
-            
         }
 
     }, []);
     
     function onShow() {
+        console.log("onShow");
         setContentVisible({visible:true});
     }
 
     function onHide() {
+        console.log("onHide");
         setContentVisible({visible:false});
     }
 
@@ -330,6 +329,7 @@ function LookupInformationControl(props:any) {
     let dataViewLabelStyle:any = {float:"left"};
     let subgridViewControlStyle:any = {width:"100px", marginLeft:"20px", marginTop:"10px"};
 
+    console.log("contentVisible.visible: " + contentVisible.visible);
     let contentStyle:any = {width:"800px", height:"800px", display:"none"};
     if(contentVisible.visible) {
         contentStyle = {width:"800px", height:"800px", display:"block"};
@@ -365,23 +365,25 @@ function LookupInformationControl(props:any) {
     return (
         <>
             <div onMouseEnter={onShow} onMouseLeave={onHide} style={lookupInputStyle}></div>
-            <tr><td><p style={recordheaderstyle}>Record Data</p></td><td></td></tr>
-            <table>
-                {itemsTable}
-            </table>
-            <br/>
-            <br/>
-            <div style={subgridHeaderDivStyle}>
-            <p style={dataViewLabelStyle}>Subgrid Data View</p>
-            <select style={subgridViewControlStyle} id="subgridViewControl">
-                <option value="Vertical">Vertical</option>
-                <option value="Horizontal">Horizontal</option>
-            </select>
+            <div style={contentStyle}>
+                <table>
+                    <tr><td><p style={recordheaderstyle}>Record Data</p></td><td></td></tr>
+                    {itemsTable}
+                </table>
+                <br/>
+                <br/>
+                <div style={subgridHeaderDivStyle}>
+                    <p style={dataViewLabelStyle}>Subgrid Data View</p>
+                    <select style={subgridViewControlStyle} id="subgridViewControl">
+                        <option value="Vertical">Vertical</option>
+                        <option value="Horizontal">Horizontal</option>
+                    </select>
+                </div>
+                <br/>
+                <table>
+                    {subgridTable}
+                </table>
             </div>
-            <br/>
-            <table>
-                {subgridTable}
-            </table>
         </>
     );
 }
