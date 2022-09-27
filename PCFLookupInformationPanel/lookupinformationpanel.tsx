@@ -186,7 +186,7 @@ function LookupInformationControl(props:any) {
                     fetchXML = fetchXML.replace("PARENT_LOOKUP_FIELD", lookupfieldname);
                     
                     console.log("fetch sub records fetchxml: " + fetchXML);
-
+                    
                     props.context.webAPI.retrieveMultipleRecords(entityname, `?fetchXml=${fetchXML}`).then(
                         (resp: ComponentFramework.WebApi.RetrieveMultipleResponse) => {
                             let recordLoopCount = 0;
@@ -365,7 +365,6 @@ function LookupInformationControl(props:any) {
         </>
     );
 
-
     let subgridTable:any;
 
     if(subgridViewStyle.type=="Vertical") {
@@ -392,15 +391,11 @@ function LookupInformationControl(props:any) {
             <>
                 <tr><td><p style={subgridheaderstyle}>{subgrid.entityname}</p></td><td></td></tr>
                 <tr style={trstyle}>
-                {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
-                    <>
-                    {subgridRecordFields.map((subgridRecordField:CFieldData) =>
+                    {subgrid.data[0].map((subgridRecordField:CFieldData) =>
                         <>
                             <th style={tdstyle}>{subgridRecordField.displaytext}</th>
                         </>
                     )}
-                    </>
-                )}
                 </tr>
                 {subgrid.data.map((subgridRecordFields:Array<CFieldData>) =>
                     <>
