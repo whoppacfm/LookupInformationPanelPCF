@@ -43,7 +43,8 @@ function LookupInformationControl(props:any) {
 
     //State
     const [contentVisible, setContentVisible] = React.useState({ 
-        visible: false
+        visible: false,
+        onHide: false
     });
 
     const [recordData, setRecordData] = React.useState({ 
@@ -312,12 +313,18 @@ function LookupInformationControl(props:any) {
     
     function onShow() {
         console.log("onShow");
-        setContentVisible({visible:true});
+        setContentVisible({visible:true, onHide:contentVisible.onHide});
     }
 
     function onHide() {
         console.log("onHide");
-        setContentVisible({visible:false});
+        if(!contentVisible.onHide) {
+            setContentVisible({visible:false, onHide:contentVisible.onHide});
+        }
+    }
+    
+    function onClickTriggerDiv() {
+        setContentVisible({visible:contentVisible.visible, onHide:!contentVisible.onHide});
     }
 
     let lookupInputStyle:any = {width:"70%", height:"10px", borderLeft:"45px solid transparent", borderRight:"45px solid transparent", borderTop:"10px solid aliceblue"};
@@ -364,7 +371,7 @@ function LookupInformationControl(props:any) {
     
     return (
         <>
-            <div onMouseEnter={onShow} onMouseLeave={onHide} style={lookupInputStyle}></div>
+            <div onClick={onClickTriggerDiv} onMouseEnter={onShow} onMouseLeave={onHide} style={lookupInputStyle}></div>
             <div style={contentStyle}>
                 <table>
                     <tr><td><p style={recordheaderstyle}>Record Data</p></td><td></td></tr>
