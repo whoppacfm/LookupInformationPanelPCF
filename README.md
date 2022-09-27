@@ -9,7 +9,7 @@ Fields: [FIELDNAME1],[FIELDNAME2], ..
 <br/>
 Lists: [ENTITYNAME],[LOOKUPNAME],[FIELDNAME1];[FIELDNAMEN]/[ENTITYNAME2] ..
 <br/>
-
+<br/><br/>
 Mouseover Line with click to lock visibility
 <br/><br/>
 ![image](https://user-images.githubusercontent.com/13801775/192543425-2c857684-df55-4c43-8edf-d6c6aac2988e.png)
